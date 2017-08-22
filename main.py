@@ -7,7 +7,7 @@ from scipy.ndimage.measurements import label
 from collections import deque
 
 # Load trained model
-dist_pickle = pickle.load(open("model_save.pkl", "rb"))
+dist_pickle = pickle.load(open("model2_save.pkl", "rb"))
 svc = dist_pickle["svc"]
 X_scaler = dist_pickle["X_scaler"]
 orient = dist_pickle["orient"]
@@ -23,39 +23,41 @@ hog_feat = dist_pickle['hog_feat']
 
 
 def proc_pipe(img):
-    heat = np.zeros_like(img[:, :, 0]).astype(np.float)
+    if proc_pipe.frame_count % PER_FRAMES is 0:
+        heat = np.zeros_like(img[:, :, 0]).astype(np.float)
 
-    xstart = 16
-    xstop = 1280
-    ystart = 370
-    ystop = 700
-    scale = 2
+        xstart = 16
+        xstop = 1280
+        ystart = 370
+        ystop = 700
+        scale = 2
 
-    windows = find_cars(img, xstart, xstop, ystart, ystop, scale, svc, X_scaler, orient, pix_per_cell, cell_per_block,
-                        spatial_size, hist_bins)
-    heat = add_heat(heat, windows)
+        windows = find_cars(img, xstart, xstop, ystart, ystop, scale, svc, X_scaler, orient, pix_per_cell, cell_per_block,
+                            spatial_size, hist_bins)
+        heat = add_heat(heat, windows)
 
-    xstart = 0
-    xstop = 1280
-    ystart = 380
-    ystop = 590
-    scale = 1.5
-    windows = find_cars(img, xstart, xstop, ystart, ystop, scale, svc, X_scaler, orient, pix_per_cell, cell_per_block,
-                        spatial_size, hist_bins)
-    heat = add_heat(heat, windows)
+        xstart = 0
+        xstop = 1280
+        ystart = 380
+        ystop = 600
+        scale = 1.5
+        windows = find_cars(img, xstart, xstop, ystart, ystop, scale, svc, X_scaler, orient, pix_per_cell, cell_per_block,
+                            spatial_size, hist_bins)
+        heat = add_heat(heat, windows)
 
-    xstart = 0
-    xstop = 1280
-    ystart = 390
-    ystop = 510
-    scale = 1
-    windows = find_cars(img, xstart, xstop, ystart, ystop, scale, svc, X_scaler, orient, pix_per_cell, cell_per_block,
-                        spatial_size, hist_bins)
-    heat = add_heat(heat, windows)
+        xstart = 640 - 200
+        xstop = 640 + 200
+        ystart = 390
+        ystop = 500
+        scale = 1
+        windows = find_cars(img, xstart, xstop, ystart, ystop, scale, svc, X_scaler, orient, pix_per_cell, cell_per_block,
+                            spatial_size, hist_bins)
+        heat = add_heat(heat, windows)
 
-    # queue whole windows
-    proc_pipe.heats.append(heat)
+        # queue whole windows
+        proc_pipe.heats.append(heat)
 
+    proc_pipe.frame_count += 1
     heat_mean = np.sum(proc_pipe.heats, axis=0)
 
     # For video output, threshold doesn't apply here
@@ -64,12 +66,14 @@ def proc_pipe(img):
     heat_image = heat_image * 20
 
     # Apply threshold to help remove false positives
-    heat_mean = apply_threshold(heat_mean, len(proc_pipe.heats)//2)
+    # heat_mean = apply_threshold(heat_mean, len(proc_pipe.heats)*2.5)
+    heat_mean = apply_threshold(heat_mean, 4)
 
     # Visualize the heatmap when displaying
     heatmap = np.clip(heat_mean, 0, 255)
 
     labels = label(heatmap)
+
     # draw_img = draw_boxes(img, windows)
     draw_img = draw_labeled_bboxes(np.copy(img), labels)
 
@@ -80,16 +84,21 @@ def proc_pipe(img):
     return compose
 
 
-MAX_HEAT_COUNT = 4
+MAX_HEAT_COUNT = 2
 proc_pipe.heats = deque(maxlen=MAX_HEAT_COUNT)
 
+PER_FRAMES = 3
+proc_pipe.frame_count = 0
 
 
 if __name__ == '__main__':
     video_file = 'project_video.mp4'
     # video_file = 'IMG_2650.mp4'
     video_output = 'output_images/' + video_file
-    # read_clip = VideoFileClip(video_file, audio=False).subclip(40, 42)
+    # read_clip = VideoFileClip(video_file, audio=False).subclip(38, 42)
     read_clip = VideoFileClip(video_file, audio=False)
     white_clip = read_clip.fl_image(proc_pipe)
+
+
+
     white_clip.write_videofile(video_output, audio=False)

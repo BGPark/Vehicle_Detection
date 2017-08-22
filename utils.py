@@ -500,8 +500,8 @@ def find_cars(img, xstart, xstop, ystart, ystop, scale, svc, X_scaler, orient, p
     window = 64
     nblocks_per_window = (window // pix_per_cell) - cell_per_block + 1
     cells_per_step = 2 # Instead of overlap, define how many cells to step
-    nxsteps = (nxblocks - nblocks_per_window) // cells_per_step + cells_per_step // cell_per_block
-    nysteps = (nyblocks - nblocks_per_window) // cells_per_step + cells_per_step // cell_per_block
+    nxsteps = (nxblocks - nblocks_per_window) // cells_per_step + cell_per_block // cells_per_step
+    nysteps = (nyblocks - nblocks_per_window) // cells_per_step + cell_per_block // cells_per_step
     # print(nxsteps, nysteps, ctrans_tosearch.shape)
 
     # Compute individual channel HOG features for the entire image

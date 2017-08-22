@@ -5,7 +5,7 @@ from sklearn.model_selection import train_test_split
 
 import pickle
 
-dataset = pickle.load(open('full_data.pkl', 'rb'))
+dataset = pickle.load(open('../full_data.pkl', 'rb'))
 # dataset = pickle.load(open('simple_data.pkl', 'rb'))
 
 cars = dataset['car']
@@ -13,12 +13,12 @@ notcars = dataset['notcar']
 
 
 color_space = 'YCrCb'  # Can be RGB, HSV, LUV, HLS, YUV, YCrCb
-orient = 12  # HOG orientations
+orient = 10  # HOG orientations
 pix_per_cell = 8  # HOG pixels per cell
 cell_per_block = 2  # HOG cells per block
 hog_channel = 'ALL'  # Can be 0, 1, 2, or "ALL"
-spatial_size = (32, 32)  # Spatial binning dimensions
-hist_bins = 32  # Number of histogram bins
+spatial_size = (16, 16)  # Spatial binning dimensions
+hist_bins = 16  # Number of histogram bins
 spatial_feat = True  # Spatial features on or off
 hist_feat = True  # Histogram features on or off
 hog_feat = True  # HOG features on or off
@@ -75,7 +75,7 @@ dist_pickle['hist_feat'] = hist_feat
 dist_pickle['hog_feat'] = hog_feat
 
 
-pickle.dump(dist_pickle, open('model_save.pkl', 'wb'))
+pickle.dump(dist_pickle, open('../model2_save.pkl', 'wb'))
 
 
 
