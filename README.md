@@ -74,14 +74,14 @@ Final parameters set for the entire dataset and accuracy are as follows. The mod
 parameter | value
 ----|----
 color_space | 'YCrCb'
-HOG orientation | 12
+HOG orientation | 10
 HOG pixels per cell | 8
 HOG cells per block | 2
 HOG channel | ALL
-Spatial binning dimensions | (32, 32)
-Number of histogram bins | 32
-Feature vector length | 10224
-**Model Accuracy** | **0.988457**
+Spatial binning dimensions | (16, 16)
+Number of histogram bins | 16
+Feature vector length | 6696
+**Model Accuracy** | **0.987331**
 
 
 ## Step 3: Detecting Vehicle
@@ -112,7 +112,7 @@ using heat map and setting a threshold value([concept](lab/13.%20hog_sub-samplin
 Based on the previously prepared elements, I construct a pipe to process stream video and output video file.
 First, set the search window area according to the search scale. As mentioned above, I use three scales group. ([scale 2](main.py#L32)) ([scale 1.5](main.py#L42)) ([scale 1](main.py#L51))
 
-To avoid false positives while processing video frames, I simply queued the results of the previous frame([code](main.py#L56)) and apply threshold([code](main.py#L66)). The previous frame used to identify the vehicle position of the current frame was recognized as being detected only when the vehicle was detected for about 133 ms([4frame](main.py#L83)) based on 30 frames per second
+To avoid false positives while processing video frames, I simply queued the results of the previous frame([code](main.py#L56)) and apply threshold([code](main.py#L66)). The previous frame used to identify the vehicle position of the current frame was recognized as being detected only when the vehicle was detected for about 250 ms([once per 3 frames X heat 2 heat queue](main.py#L87)) based on 25 frames per second
 
 The result video can be seen [here](output_images/project_video.mp4) or [YouTube](https://youtu.be/T3Y2Z9-Elmc).
 ![still image](output_images/project_video%5B00%2000%2039%5D.png)
